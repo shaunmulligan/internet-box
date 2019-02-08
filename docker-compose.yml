@@ -1,0 +1,20 @@
+version: '2'
+services:
+  metrics:
+    build: ./metrics
+    pid: "host"
+    network_mode: "host"
+    privileged: true
+    labels:
+      io.resin.features.balena-socket: '1'
+      io.resin.features.firmware: '1'
+      io.resin.features.dbus: '1'
+  connectivity:
+    build: ./connectivity
+    ports:
+      - "80:80"
+    labels:
+      io.resin.features.dbus: '1'
+      # io.resin.features.supervisor-api: '1'
+      # io.resin.features.resin-api: '1'
+  
