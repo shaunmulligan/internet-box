@@ -13,6 +13,7 @@ import dbus
 from datetime import datetime
 import json
 import os
+import enum
 
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
@@ -29,6 +30,41 @@ class MMSmsState(object):
     MM_SMS_STATE_RECEIVED  = 3
     MM_SMS_STATE_SENDING   = 4
     MM_SMS_STATE_SENT      = 5
+
+# https://developer.gnome.org/ModemManager/unstable/ModemManager-Flags-and-Enumerations.html#MMModemState
+class MMModemState(enum.Enum):
+    MM_MODEM_STATE_FAILED        = -1
+    MM_MODEM_STATE_UNKNOWN       = 0
+    MM_MODEM_STATE_INITIALIZING  = 1
+    MM_MODEM_STATE_LOCKED        = 2
+    MM_MODEM_STATE_DISABLED      = 3
+    MM_MODEM_STATE_DISABLING     = 4
+    MM_MODEM_STATE_ENABLING      = 5
+    MM_MODEM_STATE_ENABLED       = 6
+    MM_MODEM_STATE_SEARCHING     = 7
+    MM_MODEM_STATE_REGISTERED    = 8
+    MM_MODEM_STATE_DISCONNECTING = 9
+    MM_MODEM_STATE_CONNECTING    = 10
+    MM_MODEM_STATE_CONNECTED     = 11
+
+class MMModemAccessTechnology(enum.Enum):
+    MM_MODEM_ACCESS_TECHNOLOGY_UNKNOWN     = 0
+    MM_MODEM_ACCESS_TECHNOLOGY_POTS        = 1 << 0
+    MM_MODEM_ACCESS_TECHNOLOGY_GSM         = 1 << 1
+    MM_MODEM_ACCESS_TECHNOLOGY_GSM_COMPACT = 1 << 2
+    MM_MODEM_ACCESS_TECHNOLOGY_GPRS        = 1 << 3
+    MM_MODEM_ACCESS_TECHNOLOGY_EDGE        = 1 << 4
+    MM_MODEM_ACCESS_TECHNOLOGY_UMTS        = 1 << 5
+    MM_MODEM_ACCESS_TECHNOLOGY_HSDPA       = 1 << 6
+    MM_MODEM_ACCESS_TECHNOLOGY_HSUPA       = 1 << 7
+    MM_MODEM_ACCESS_TECHNOLOGY_HSPA        = 1 << 8
+    MM_MODEM_ACCESS_TECHNOLOGY_HSPA_PLUS   = 1 << 9
+    MM_MODEM_ACCESS_TECHNOLOGY_1XRTT       = 1 << 10
+    MM_MODEM_ACCESS_TECHNOLOGY_EVDO0       = 1 << 11
+    MM_MODEM_ACCESS_TECHNOLOGY_EVDOA       = 1 << 12
+    MM_MODEM_ACCESS_TECHNOLOGY_EVDOB       = 1 << 13
+    MM_MODEM_ACCESS_TECHNOLOGY_LTE         = 1 << 14
+    MM_MODEM_ACCESS_TECHNOLOGY_ANY         = 0xFFFFFFFF
 
 # singleton: main app loop
 class MainLoop(object):
@@ -297,7 +333,6 @@ class MMModemMessaging(DBusInterface):
     def signal_added(self, handler = message_added):
         self.setup_signal('Added', handler)
 
-
 class ModemManager(ModemManagerObject):
 
     modems = None
@@ -347,27 +382,44 @@ class ModemManager(ModemManagerObject):
             return modems
         return None
 
-def main():
+    # TODO: allow multiple modems
+    def get_modem_signal_quality(self):
+        modem = self.get_first()
+        sq = modem.get_property('SignalQuality')
+        return int(sq[0])
     
-#    DBusGMainLoop(set_as_default=True)
+    def get_modem_access_tech(self):
+        modem = self.get_first()
+        tech = modem.get_property('AccessTechnologies')
+        return MMModemAccessTechnology(tech).name
+
+    # TODO: allow multiple modems
+    def get_modem_state(self):
+        modem = self.get_first()
+        state = modem.get_property('State')
+        return MMModemState(state).name
+
+# def main():
     
-    mm = ModemManager()
-    m = mm.get_first()
+# #    DBusGMainLoop(set_as_default=True)
     
-    if m:
-        ms = MMModemMessaging(m)
-#        ms.signal_added()
+#     mm = ModemManager()
+#     m = mm.get_first()
+    
+#     if m:
+#         ms = MMModemMessaging(m)
+# #        ms.signal_added()
 
-        cnt = 0
-        messages = ms.get_sms()
-        if len(messages) > SMS_STORE_COUNT:
-            for m in messages:
-                print("%s (%s): %s" % (m.Number(), m.get_date(), m.Text()))
-                cnt += 1
-                if cnt > SMS_STORE_COUNT:
-                    m.save()
-                    ms.delete(m)
+#         cnt = 0
+#         messages = ms.get_sms()
+#         if len(messages) > SMS_STORE_COUNT:
+#             for m in messages:
+#                 print("%s (%s): %s" % (m.Number(), m.get_date(), m.Text()))
+#                 cnt += 1
+#                 if cnt > SMS_STORE_COUNT:
+#                     m.save()
+#                     ms.delete(m)
 
-#        MainLoop().run()
+# #        MainLoop().run()
 
-main()
+# main()
