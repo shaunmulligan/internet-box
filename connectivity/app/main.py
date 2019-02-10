@@ -28,22 +28,34 @@ async def get_connectivity_state(request):
 @app.route("/connections/activate/<name>")
 async def activate_connection(request, name):
     try:
+        logger.info('activating connection')
         return json({"activated": nm.activate_connection(name) })
     except NameError as e:
+        logger.info('error activating connection')
         return json({"error": e})
 
 @app.route("/accesspoint/up")
 async def access_point_up(request):
     state = ap.up()
+    logger.info('activating accesspoint')
     return json({"status":state})
 
 @app.route("/accesspoint/down")
 async def access_point_down(request):
     state = ap.down()
+    logger.info('deactivating accesspoint')
     return json({"status":state})
+
+@app.route("/modem/state")
+async def get_modem_state(request):
+    mm = app.config.mm
+    modem = mm.get_first()
+    signal = mm.get_modem_signal_quality(modem)
+    accessTech = mm.get_modem_access_tech(modem)    
+    return json({"modem": {"signal": signal, "access": accessTech} })
 
 if __name__ == "__main__":
     mm = ModemManager()
-    m = mm.get_first()
-    print(m)
+    app.config.mm = mm
+
     app.run(host="0.0.0.0", port=80,debug=True, access_log=True)

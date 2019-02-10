@@ -1,13 +1,5 @@
 #!/usr/bin/python3
 
-# script created for reading SMS messages from 3G modem connected to PC
-# 1) it looks for modem
-# 2) reads all SMS messages from modem
-# 3) prints all found SMS messages to stdout only if total messages count
-#    greater than SMS_STORE_COUNT (default is 3)
-# 4) save all but SMS_STORE_COUNT messages to txt files and
-#    delete them from modem
-
 import sys
 import dbus
 from datetime import datetime
@@ -383,21 +375,22 @@ class ModemManager(ModemManagerObject):
         return None
 
     # TODO: allow multiple modems
-    def get_modem_signal_quality(self):
-        modem = self.get_first()
+    def get_modem_signal_quality(self, modem):
         sq = modem.get_property('SignalQuality')
         return int(sq[0])
     
-    def get_modem_access_tech(self):
-        modem = self.get_first()
+    def get_modem_access_tech(self, modem):
         tech = modem.get_property('AccessTechnologies')
         return MMModemAccessTechnology(tech).name
 
     # TODO: allow multiple modems
-    def get_modem_state(self):
-        modem = self.get_first()
+    def get_modem_state(self, modem):
         state = modem.get_property('State')
         return MMModemState(state).name
+
+    def get_modem_state(self, modem):
+        print("Sig Quality: ", self.get_modem_signal_quality(modem))
+        print("Access Tech: ", self.get_modem_access_tech(modem))
 
 # def main():
     
