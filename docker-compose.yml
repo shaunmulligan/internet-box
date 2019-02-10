@@ -11,6 +11,7 @@ services:
       io.resin.features.dbus: '1'
   connectivity:
     build: ./connectivity
+    network_mode: "host"
     ports:
       - "80:80"
     labels:
