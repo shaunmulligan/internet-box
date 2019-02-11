@@ -378,7 +378,7 @@ class ModemManager(ModemManagerObject):
     def get_modem_signal_quality(self, modem):
         sq = modem.get_property('SignalQuality')
         return int(sq[0])
-    
+   
     def get_modem_access_tech(self, modem):
         tech = modem.get_property('AccessTechnologies')
         return MMModemAccessTechnology(tech).name
@@ -387,32 +387,3 @@ class ModemManager(ModemManagerObject):
     def get_modem_state(self, modem):
         state = modem.get_property('State')
         return MMModemState(state).name
-
-    def get_modem_state(self, modem):
-        print("Sig Quality: ", self.get_modem_signal_quality(modem))
-        print("Access Tech: ", self.get_modem_access_tech(modem))
-
-# def main():
-    
-# #    DBusGMainLoop(set_as_default=True)
-    
-#     mm = ModemManager()
-#     m = mm.get_first()
-    
-#     if m:
-#         ms = MMModemMessaging(m)
-# #        ms.signal_added()
-
-#         cnt = 0
-#         messages = ms.get_sms()
-#         if len(messages) > SMS_STORE_COUNT:
-#             for m in messages:
-#                 print("%s (%s): %s" % (m.Number(), m.get_date(), m.Text()))
-#                 cnt += 1
-#                 if cnt > SMS_STORE_COUNT:
-#                     m.save()
-#                     ms.delete(m)
-
-# #        MainLoop().run()
-
-# main()
